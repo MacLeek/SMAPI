@@ -53,32 +53,24 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Stardew Valley">
-      <HintPath>$(SteamPath)\steamapps\common\Stardew Valley\Stardew Valley.exe</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="xTile">
-      <HintPath>$(SteamPath)\steamapps\common\Stardew Valley\xTile.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\Desktop\xtiled\bin\Debug\xTile.dll</HintPath>
     </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\..\Desktop\stardew\dlls\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TrainerMod.cs" />
@@ -89,6 +81,10 @@
       <Project>{f1a573b0-f436-472c-ae29-0b91ea6b9f8f}</Project>
       <Name>StardewModdingAPI</Name>
       <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Desktop\stardew\stardew_mac.csproj">
+      <Project>{95CA9CF7-F82D-49C4-9107-48699F2848F0}</Project>
+      <Name>stardew_mac</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
