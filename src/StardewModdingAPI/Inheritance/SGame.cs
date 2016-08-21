@@ -1290,14 +1290,14 @@ namespace StardewModdingAPI.Inheritance
                             debugOutput
                         }), new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y), Color.Red, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9999999f);
                     }
-                    if (inputMode)
-                    {
-                        spriteBatch.DrawString(smallFont, "Input: " + debugInput, new Vector2(tileSize, tileSize * 3), Color.Purple);
-                    }
-                    if (showKeyHelp)
-                    {
-                        spriteBatch.DrawString(smallFont, keyHelpString, new Vector2(tileSize, viewport.Height - tileSize - (dialogueUp ? (tileSize * 3 + (isQuestion ? (questionChoices.Count * tileSize) : 0)) : 0) - smallFont.MeasureString(keyHelpString).Y), Color.LightGray, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9999999f);
-                    }
+                    //if (inputMode)
+                    //{
+                    //    spriteBatch.DrawString(smallFont, "Input: " + debugInput, new Vector2(tileSize, tileSize * 3), Color.Purple);
+                    //}
+                    //if (showKeyHelp)
+                    //{
+                    //    spriteBatch.DrawString(smallFont, keyHelpString, new Vector2(tileSize, viewport.Height - tileSize - (dialogueUp ? (tileSize * 3 + (isQuestion ? (questionChoices.Count * tileSize) : 0)) : 0) - smallFont.MeasureString(keyHelpString).Y), Color.LightGray, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9999999f);
+                    //}
 
                     GraphicsEvents.InvokeOnPreRenderGuiEventNoCheck(null, EventArgs.Empty);
                     if (activeClickableMenu != null)

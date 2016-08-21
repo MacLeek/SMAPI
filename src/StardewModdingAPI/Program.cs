@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
@@ -27,11 +26,10 @@ namespace StardewModdingAPI
         public static Assembly StardewAssembly;
         public static Type StardewProgramType;
         public static FieldInfo StardewGameInfo;
-        public static Form StardewForm;
 
         public static Thread gameThread;
         public static Thread consoleInputThread;
-        //private static List<string> _modContentPaths;
+        private static List<string> _modContentPaths;
 
         public static Texture2D DebugPixel { get; private set; }
 
@@ -46,7 +44,7 @@ namespace StardewModdingAPI
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
+            //Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
 
             try
             {
@@ -54,9 +52,10 @@ namespace StardewModdingAPI
                 Log.AsyncY("SMAPI Version: " + Constants.Version.VersionString);
                 ConfigureUI();
                 ConfigurePaths();
+				GameRunInvoker();
                 ConfigureSDV();
 
-                GameRunInvoker();
+                
             }
             catch (Exception e)
             {
@@ -103,9 +102,9 @@ namespace StardewModdingAPI
             //_modContentPaths.ForEach(path => VerifyPath(path));
             VerifyPath(Constants.LogDir);
 
-            if (!File.Exists(Constants.ExecutionPath + "\\Stardew Valley.exe"))
+            if (!File.Exists(Constants.ExecutionPath + "//StardewValley.exe"))
             {
-                throw new FileNotFoundException($"Could not found: {Constants.ExecutionPath}\\Stardew Valley.exe");
+                throw new FileNotFoundException($"Could not found: {Constants.ExecutionPath}\\StardewValley.exe");
             }
         }
 
@@ -117,7 +116,7 @@ namespace StardewModdingAPI
             Log.AsyncY("Initializing SDV Assembly...");
 
             // Load in the assembly - ignores security
-            StardewAssembly = Assembly.UnsafeLoadFrom(Constants.ExecutionPath + "\\Stardew Valley.exe");
+            StardewAssembly = Assembly.UnsafeLoadFrom(Constants.ExecutionPath + "//StardewValley.exe");
             StardewProgramType = StardewAssembly.GetType("StardewValley.Program", true);
             StardewGameInfo = StardewProgramType.GetField("gamePtr");
 
@@ -125,39 +124,16 @@ namespace StardewModdingAPI
             Log.AsyncY("Injecting New SDV Version...");
             Game1.version += $"-Z_MODDED | SMAPI {Constants.Version.VersionString}";
 
-            // Create the thread for the game to run in.
-            gameThread = new Thread(RunGame);
-            Log.AsyncY("Starting SDV...");
-            gameThread.Start();
-
+			// Create the thread for the game to run in.
+			//gameThread = new Thread(RunGame);
+			//Log.AsyncY("Starting SDV...");
+			//gameThread.Start();
+			RunGame();
             // Wait for the game to load up
-            while (!ready)
-            {
-            }
+            //while (!ready)
+            //{
+            //}
 
-            //SDV is running
-            Log.AsyncY("SDV Loaded Into Memory");
-
-            //Create definition to listen for input
-            Log.AsyncY("Initializing Console Input Thread...");
-            consoleInputThread = new Thread(ConsoleInputThread);
-
-            // The only command in the API (at least it should be, for now)
-            Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += help_CommandFired;
-            //Command.RegisterCommand("crash", "crashes sdv").CommandFired += delegate { Game1.player.draw(null); };
-
-            //Subscribe to events
-            ControlEvents.KeyPressed += Events_KeyPressed;
-            GameEvents.LoadContent += Events_LoadContent;
-            //Events.MenuChanged += Events_MenuChanged; //Idk right now
-
-            Log.AsyncY("Applying Final SDV Tweaks...");
-            StardewInvoke(() =>
-            {
-                gamePtr.IsMouseVisible = false;
-                gamePtr.Window.Title = "Stardew Valley - Version " + Game1.version;
-                StardewForm.Resize += GraphicsEvents.InvokeResize;
-            });
         }
 
         /// <summary>
@@ -165,29 +141,26 @@ namespace StardewModdingAPI
         /// </summary>
         private static void GameRunInvoker()
         {
-            //Game's in memory now, send the event
-            Log.AsyncY("Game Loaded");
-            GameEvents.InvokeGameLoaded();
-
-            Log.AsyncY("Type 'help' for help, or 'help <cmd>' for a command's usage");
+            
             //Begin listening to input
+			consoleInputThread = new Thread(ConsoleInputThread);
             consoleInputThread.Start();
 
 
-            while (ready)
-            {
-                //Check if the game is still running 10 times a second
-                Thread.Sleep(1000 / 10);
-            }
+   //         while (ready)
+			//{
+   //             //Check if the game is still running 10 times a second
+   //             Thread.Sleep(1000 / 10);
+   //         }
 
-            //abort the thread, we're closing
-            if (consoleInputThread != null && consoleInputThread.ThreadState == ThreadState.Running)
-                consoleInputThread.Abort();
+   //         //abort the thread, we're closing
+   //         if (consoleInputThread != null && consoleInputThread.ThreadState == ThreadState.Running)
+   //             consoleInputThread.Abort();
 
-            Log.AsyncY("Game Execution Finished");
-            Log.AsyncY("Shutting Down...");
-            Thread.Sleep(100);
-            Environment.Exit(0);
+   //         Log.AsyncY("Game Execution Finished");
+   //         Log.AsyncY("Shutting Down...");
+   //         Thread.Sleep(100);
+   //         Environment.Exit(0);
         }
 
         /// <summary>
@@ -213,8 +186,6 @@ namespace StardewModdingAPI
 
         public static void RunGame()
         {
-            Application.ThreadException += Log.Application_ThreadException;
-            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             AppDomain.CurrentDomain.UnhandledException += Log.CurrentDomain_UnhandledException;
 
             try
@@ -224,9 +195,6 @@ namespace StardewModdingAPI
                 Game1.graphics.GraphicsProfile = GraphicsProfile.HiDef;
                 LoadMods();
 
-                StardewForm = Control.FromHandle(gamePtr.Window.Handle).FindForm();
-                if (StardewForm != null) StardewForm.Closing += StardewForm_Closing;
-
                 ready = true;
 
                 StardewGameInfo.SetValue(StardewProgramType, gamePtr);
@@ -235,19 +203,6 @@ namespace StardewModdingAPI
             catch (Exception ex)
             {
                 Log.AsyncR("Game failed to start: " + ex);
-            }
-        }
-
-        private static void StardewForm_Closing(object sender, CancelEventArgs e)
-        {
-            e.Cancel = true;
-
-            if (true || MessageBox.Show("Are you sure you would like to quit Stardew Valley?\nUnsaved progress will be lost!", "Confirm Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
-            {
-                gamePtr.Exit();
-                gamePtr.Dispose();
-                StardewForm.Hide();
-                ready = false;
             }
         }
 
@@ -356,10 +311,33 @@ namespace StardewModdingAPI
         public static void ConsoleInputThread()
         {
             var input = string.Empty;
+			while (!ready);
+			//SDV is running
+			Log.AsyncY("SDV Loaded Into Memory");
 
-            while (true)
+			//Create definition to listen for input
+			Log.AsyncY("Initializing Console Input Thread...");
+
+			// The only command in the API (at least it should be, for now)
+			Command.RegisterCommand("help", "Lists all commands | 'help <cmd>' returns command description").CommandFired += help_CommandFired;
+			//Command.RegisterCommand("crash", "crashes sdv").CommandFired += delegate { Game1.player.draw(null); };
+
+			//Subscribe to events
+			ControlEvents.KeyPressed += Events_KeyPressed;
+			GameEvents.LoadContent += Events_LoadContent;
+			//Events.MenuChanged += Events_MenuChanged; //Idk right now
+
+			Log.AsyncY("Applying Final SDV Tweaks...");
+			//Game's in memory now, send the event
+			Log.AsyncY("Game Loaded");
+			GameEvents.InvokeGameLoaded();
+
+			Log.AsyncY("Type 'help' for help, or 'help <cmd>' for a command's usage");
+			while (true)
             {
-                Command.CallCommand(Console.ReadLine());
+				var cmds = Console.ReadLine();
+				if(cmds!=null)
+                Command.CallCommand(cmds);
             }
         }
 
@@ -425,11 +403,6 @@ namespace StardewModdingAPI
             //Game1.currentLocation = SGame.CurrentLocation;
             //Log.LogComment(((SGameLocation) newLocation).name);
             //Log.LogComment("LOC CHANGED: " + SGame.currentLocation.name);
-        }
-
-        public static void StardewInvoke(Action a)
-        {
-            StardewForm.Invoke(a);
         }
 
         private static void help_CommandFired(object o, EventArgsCommand e)
