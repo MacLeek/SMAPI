@@ -15,9 +15,9 @@ namespace StardewModdingAPI
         public string PathOnDisk { get; internal set; }
 
         /// <summary>
-        ///     A basic path to store your mod's config at.
+        ///     A cross platform basic path to store your mod's config at.
         /// </summary>
-        public string BaseConfigPath => PathOnDisk + "\\config.json";
+        public string BaseConfigPath => PathOnDisk + Path.DirectorySeparatorChar + "config.json";
 
         /// <summary>
         ///     A basic path to where per-save configs are stored
